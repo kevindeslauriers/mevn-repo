@@ -15,8 +15,6 @@ passport.use(new LocalStrategy(
         return done(null, false, { message: 'Incorrect email or password.' });
       }
 
-      // Fetch the role from the user document
-      const role = user.role;
       return done(null, user);
     } catch (error) {
       return done(error);
