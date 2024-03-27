@@ -1,5 +1,6 @@
 // Import required modules
 const express = require('express');
+const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport'); // Import the configured Passport instance
 require('./passport');
@@ -11,12 +12,13 @@ const generateSalt = require('./saltGenerator');
 
 // Initialize Express app
 const app = express();
+app.use(cors()); // Enable CORS for all routes
 
 // Middleware setup
 app.set('view engine', 'ejs'); // Assuming you're using EJS for templating
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
-  secret: `${generateSalt()}`, // Replace 'secret' with your session secret
+  secret: `${generateSalt()}`, 
   resave: false,
   saveUninitialized: false
 }));

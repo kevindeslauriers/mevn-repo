@@ -4,11 +4,15 @@ const passport = require('passport');
 const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
-
+const jwt = require('jsonwebtoken');
+const enviro = require('dotenv')
+enviro.config()
 
 // POST request to handle login form submission
 router.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
+  console.log('happy')
+  console.log(req.body)
+  passport.authenticate('local', (err, user, info) => {    
     if (err) {
       console.log(err)
     }
@@ -19,7 +23,14 @@ router.post('/login', (req, res, next) => {
       if (err) {
         return next(err);
       }
-      return res.redirect('/dashboard'); // Redirect to dashboard on successful login
+
+      console.log(user)
+      const jwt_USER = {
+        _id : user._id,
+        role: user.role
+      }
+      const token = jwt.sign(jwt_USER, `${process.env.JWT_SECRET}`, { expiresIn: '1h' });
+      return res.status(200).json({ token });
     });
   })(req, res, next);
 });
