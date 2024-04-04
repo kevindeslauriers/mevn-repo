@@ -12,7 +12,7 @@
         </div>
         <button type="submit">Login</button>
       </form>
-      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <p v-if="loginError" class="error-message">{{ loginError }}</p>
     </div>
   </template>
   
@@ -39,7 +39,6 @@
           this.$router.push({ name: 'home' });
         } catch (error) {
           this.loginError = 'Failed to login. Please check your credentials and try again.';
-          console.error('Login failed:', error);
         }
       }
     }

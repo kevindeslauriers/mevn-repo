@@ -19,17 +19,37 @@ const AuthService = {
       if (response.status === 200) {
         console.log(response.data)
         return response.data; // Return the user data
-      } else {
-        // Handle login error (e.g., incorrect credentials)
+      }else {
+        console.log('test1')
         throw new Error('Login failed: Incorrect credentials');
       }
     } catch (error) {
       // Handle other errors (e.g., network error)
-      console.error('Login failed:', error);
+      console.error('Login failed:', error.response.data);
       throw error;
     }
   },
-  // Add other authentication methods (e.g., logout) here
+  decodeToken(token){
+    try {
+      if (typeof token !== 'string') {
+        throw new Error('Token must be a string.');
+      }
+      // Split the token into its parts
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        throw new Error('Invalid token format.');
+      }
+      // Decode the payload from base64
+
+      const payloadJson = atob(parts[1]);
+      // Parse the payload as JSON
+      const payload = JSON.parse(payloadJson);
+      return payload;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  },
 };
 
 export default AuthService;

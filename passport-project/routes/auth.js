@@ -12,22 +12,25 @@ enviro.config()
 router.post('/login', (req, res, next) => {
   console.log('happy')
   console.log(req.body)
-  passport.authenticate('local', (err, user, info) => {    
+  passport.authenticate('local', (err, user, info) => {   
+    console.log(1) 
+    console.log(err)
+    console.log(user)
+    console.log(info)
     if (err) {
       console.log(err)
     }
     if (!user) {
-      return res.redirect('/login'); // Redirect to login page
-    }
+      return res.status(401).send(info.message);    }
     req.logIn(user, (err) => {
       if (err) {
         return next(err);
       }
 
-      console.log(user)
       const jwt_USER = {
         _id : user._id,
-        role: user.role
+        role: user.role,
+        email: user.email
       }
       const token = jwt.sign(jwt_USER, `${process.env.JWT_SECRET}`, { expiresIn: '1h' });
       return res.status(200).json({ token });

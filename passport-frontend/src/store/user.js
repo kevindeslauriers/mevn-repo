@@ -18,15 +18,22 @@ export default {
     actions: {
       async loginUser({ commit }, credentials) {
         try {
-          console.log(credentials)
           // Call AuthService to authenticate the user
-          const user = await AuthService.login(credentials);
+          const resp = await AuthService.login(credentials);
+          const token = resp.token;
+          // Decode the token to extract user information
+          const user = AuthService.decodeToken(token);
+          
           // Upon successful authentication, commit the setUser mutation
           commit('setUser', user);
-          console.log(user)
+          
+          // Optionally, you can also store the token in local storage or a cookie
+          localStorage.setItem('token', token);
+      
+          console.log('User logged in:', user.email);
         } catch (error) {
           // Handle authentication errors
-          console.error('Login failed:', error);
+          console.error('Failed to log in:', error);
           throw error;
         }
       },
@@ -38,6 +45,7 @@ export default {
     getters: {
       isLoggedIn(state) {
         // Check if a user is logged in based on the user state
+        console.log(state.user !== null)
         return state.user !== null;
       },
       currentUser(state) {
