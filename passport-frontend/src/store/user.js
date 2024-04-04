@@ -3,55 +3,63 @@ import AuthService from '@/services/AuthService'; // Assuming AuthService is imp
 
 export default {
     state: {
-      user: null // Initial user state
+        user: null, // Initial user state
+        isLoggedIn: false, // Tracks the login status
     },
     mutations: {
-      setUser(state, user) {
-        state.user = user;
-        state.isLoggedIn = true;
-
-      },
-      clearUser(state) {
-        state.user = null;
-      }
+        setUser(state, user) {
+            state.user = user;
+            state.isLoggedIn = !!user;
+        },
+        clearUser(state) {
+            state.user = null;
+            state.isLoggedIn = false;
+        }
     },
     actions: {
-      async loginUser({ commit }, credentials) {
-        try {
-          // Call AuthService to authenticate the user
-          const resp = await AuthService.login(credentials);
-          const token = resp.token;
-          // Decode the token to extract user information
-          const user = AuthService.decodeToken(token);
-          
-          // Upon successful authentication, commit the setUser mutation
-          commit('setUser', user);
-          
-          // Optionally, you can also store the token in local storage or a cookie
-          localStorage.setItem('token', token);
-      
-          console.log('User logged in:', user.email);
-        } catch (error) {
-          // Handle authentication errors
-          console.error('Failed to log in:', error);
-          throw error;
+        async loginUser({ commit }, credentials) {
+            try {
+                // Call AuthService to authenticate the user
+                const resp = await AuthService.login(credentials);
+                const token = resp.token;
+                // Decode the token to extract user information
+                const user = AuthService.decodeToken(token);
+
+                // Upon successful authentication, commit the setUser mutation
+                commit('setUser', user);
+
+                // Optionally, store the token in local storage or a cookie for persistent login
+                localStorage.setItem('token', token);
+
+                console.log('User logged in:', user.email);
+            } catch (error) {
+                // Handle authentication errors
+                console.error('Failed to log in:', error);
+                throw error;
+            }
+        },
+        logoutUser({ commit }) {
+            // Remove the token from local storage
+            localStorage.removeItem('token');
+            
+            // Commit the clearUser mutation to reset the user state
+            commit('clearUser');
+        },
+        rehydrateAuthenticationState({ commit }) {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // Decode the token to get the user info
+                const user = AuthService.decodeToken(token);
+                // Update the Vuex state with the decoded user info
+                commit('setUser', user);
+            } else {
+                // If no token is found, clear the user state
+                commit('clearUser');
+            }
         }
-      },
-      logoutUser({ commit }) {
-        // Commit the clearUser mutation to clear the user state
-        commit('clearUser');
-      }
     },
     getters: {
-      isLoggedIn(state) {
-        // Check if a user is logged in based on the user state
-        console.log(state.user !== null)
-        return state.user !== null;
-      },
-      currentUser(state) {
-        // Return the current user
-        return state.user;
-      }
+        isLoggedIn: (state) => state.isLoggedIn,
+        currentUser: (state) => state.user,
     }
-  };
-  
+};
